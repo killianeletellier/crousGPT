@@ -12,11 +12,10 @@ exports.getRestaurantMenu = async (restaurantID) => {
         const json = JSON.parse(parser.toJson(response.data)).root.resto;
 
         const restaurant = json.find(restaurant => restaurant.id === restaurantID);
-
         const menu = restaurant.menu;
-        const dateMenu = menu.find(day => day.date === date)?.$t;
-
-        const jsonMenu = html2json(dateMenu).child.splice(1);
+        
+        const todayMenu = menu.date ? menu : menu.find(day => day.date === date);
+        const jsonMenu = todayMenu ? html2json(todayMenu.$t).child.splice(1) : [];
         const meals = jsonMenu.filter(node => node.tag === 'ul').flatMap(node => node.child.map(meal => meal.child[0].text));
 
         return meals;
@@ -27,7 +26,7 @@ exports.getRestaurantMenu = async (restaurantID) => {
 
 exports.sendNotification = async (json) => {
     console.log(`[UTILS] Sending notification`);
-    
+
     try {
         const formattedBenefits = json.benefits.map(benefit => `\n\t- ${benefit}`).join('');
         const formattedDrawbacks = json.drawbacks.map(drawback => `\n\t- ${drawback}`).join('');
