@@ -31,13 +31,12 @@ exports.sendNotification = async (json) => {
     try {
         const formattedBenefits = json.benefits.map(benefit => `\n\t- ${benefit}`).join('');
         const formattedDrawbacks = json.drawbacks.map(drawback => `\n\t- ${drawback}`).join('');
-        
-        await axios.post('https://api.pushover.net/1/messages.json', {
-            token: process.env.PUSHOVER_TOKEN,
-            user: process.env.PUSHOVER_USER,
-            title: `Restaurant du jour : ${json.finalChoice}`,
-            message: `Avantages :${formattedBenefits}\n\nInconvénients :${formattedDrawbacks}`
-        });
+
+        await axios.post(`https://ntfy.sh/${process.env.NTFY_TOPIC_NAME}`, `Avantages :${formattedBenefits}\n\nInconvénients :${formattedDrawbacks}`, {
+            headers: {
+                'Title': `Restaurant du jour : ${json.finalChoice}`
+            }
+        })
     } catch (error) {
         return error;
     }
